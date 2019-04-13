@@ -45,34 +45,32 @@ public class NGram {
 	 
 	public static void main(String[] args) throws IOException {
 		
+		int correctMatches = 0;
+		int results = 0;
 		
+		int THRESHOLD = 2;
 	
-		FileWriter writer = new FileWriter("C:\\Users\\chris\\Google Drive\\UNI\\Knowledge Technologies\\"
-				+ "Project 1\\2019S1-proj1-data\\nGram Distance\\resTest.csv");
+		FileWriter writer = new FileWriter("C:\\Users\\Marina Office\\Google Drive\\UNI\\Knowledge Technologies\\"
+				+ "Project 1\\2019S1-proj1-data\\nGram Distance\\NGRam Two.csv");
 		
-		writer.append("Mispelt,Predicted,Correct");
+		writer.append("Mispelt,Predicted,CorrectMatches,Correct Word");
 		writer.append("\n");
 		
 		// Constructed an array list of our dictionary words
-		Dictionary dict = new Dictionary("C:\\Users\\chris\\Google Drive\\UNI\\Knowledge Technologies\\"
+		Dictionary dict = new Dictionary("C:\\Users\\Marina Office\\Google Drive\\UNI\\Knowledge Technologies\\"
 				+ "Project 1\\2019S1-proj1-data\\dict.txt");
-		
-		System.out.println(dict.words.size());
-		
-		Dictionary misspell = new Dictionary("C:\\Users\\chris\\Google Drive\\UNI\\Knowledge "
-				+ "Technologies\\Project 1\\2019S1-proj1-data\\misspell2.txt");
+			
+		Dictionary misspell = new Dictionary("C:\\Users\\Marina Office\\Google Drive\\UNI\\Knowledge "
+				+ "Technologies\\Project 1\\2019S1-proj1-data\\misspell.txt");
 
-		System.out.println(misspell.words.size());
-
-		Dictionary correct = new Dictionary("C:\\Users\\chris\\Google Drive\\UNI\\Knowledge"
-				+ " Technologies\\Project 1\\2019S1-proj1-data\\correct2.txt");
-		
-		System.out.println(correct.words.size());
-		
+		Dictionary correct = new Dictionary("C:\\Users\\Marina Office\\Google Drive\\UNI\\Knowledge"
+				+ " Technologies\\Project 1\\2019S1-proj1-data\\correct.txt");
+				
 //		Cycle through all the mispelt words
 		for (int i=0; i < misspell.words.size(); i++) {
 			
-			
+			int localCorrect = 0;
+
 			// Declare the mispelt word and its associated correct word, aswell as an arraylist for this word of the closest words to it in the dictionary 
 			String mispeltWord = misspell.words.get(i);
 			
@@ -81,8 +79,7 @@ public class NGram {
 			
 			String correctWord = correct.words.get(i);
 			
-			String finalAnswer;
-			
+		
 			ArrayList<WWS> candidates = new ArrayList<WWS>(); // or you can use an ArrayList
 			
 			// Cycle through the dictionary, each cycle declare the dictionary word inspected
@@ -93,7 +90,7 @@ public class NGram {
 				
 				String dictWord = dict.words.get(j);
 				
-				if (nGramDist(mispeltWord, dictWord,2) <= 1){
+				if (nGramDist(mispeltWord, dictWord,1) <= THRESHOLD){
 					
 					WWS wws = new WWS(dictWord, nGramDist(mispeltWord, dictWord,2));
 					
@@ -103,28 +100,71 @@ public class NGram {
 				
 			}
 			
-			if(candidates.size()>0) {
+if(candidates.size()>0) {
 				
 				Collections.sort(candidates);
 				
-				finalAnswer = candidates.get(0).word;
-				writer.append(finalAnswer +",");
+				writer.append("|||");
+				
+				int z =0;
+				for (WWS wws: candidates) {
+					
+					z++;
+					
+					if (wws.word.equals(correctWord)) {
+						
+						correctMatches++;
+						localCorrect++;
+					}
+					
+					writer.append(wws.word +"|||");
+					
+					
+					if (z == 3) {
+						break;
+					}
+				}
+				
+				results = results + z;
+				
+				writer.append(",");
+				
+//				finalAnswer = candidates.get(0).word;
+//				writer.append(finalAnswer +",");
 
 			}
 			
-			else {
-				finalAnswer = mispeltWord;
-				writer.append(finalAnswer + ",");
+	else {
+	
+	results++;
+	
+	if (mispeltWord.contentEquals(correctWord)) {
+		
+		correctMatches++;
+		localCorrect++;
+}
+	
+	writer.append(mispeltWord + ",");
+	
+	
+}
+			
+System.out.println(i+1);
 
-			}
-			
-			System.out.println(i+1);
-			
-			writer.append(correctWord + "\n");
+
+writer.append(localCorrect + ",");
+
+writer.append(correctWord + "\n");
 
 				
 			}
-			
+		System.out.println("Total Results:" +  results + "  Total Correct Matches: " + correctMatches + " out of " + misspell.words.size());
+		
+		writer.append("\n \n");
+		writer.append("FINAL RESULTS: Correct Matches: " + correctMatches + " Total Results: " + results + "\n");
+		writer.append("PRECISION: " + correctMatches + " / " + results + "\n");
+		writer.append("RECALL: " + correctMatches + " / " + misspell.words.size());
+
 		writer.close();
 
 
